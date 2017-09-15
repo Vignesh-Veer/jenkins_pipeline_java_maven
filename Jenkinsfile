@@ -2,7 +2,6 @@ node {
    // Mark the code checkout 'stage'....
    stage 'Checkout'
    
-   git config --global user.name "Vignesh-Veer"
    git url: 'https://github.com/Vignesh-Veer/jenkins_pipeline_java_maven.git'
 
    // Get the maven tool.
