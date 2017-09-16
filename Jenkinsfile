@@ -16,14 +16,14 @@ node {
    step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 }
 
-node {
+/*node {
  
   notifyStarted()
  
   /* ... existing build steps ... */
-}
+//}
  
-def notifyStarted() {
+/*def notifyStarted() {
   // send to email
   emailext (
       subject: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
@@ -31,4 +31,36 @@ def notifyStarted() {
         <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
       //recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
+}*/
+
+
+stage 'Test'
+node {
+    try {
+        sh 'exit 1'
+    } finally {
+        println currentBuild.result  // this prints null
+        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'priyasapo@gmail.com', sendToIndividuals: true])
+    }
+}
+
+stage 'Test'
+node {
+    try {
+        sh 'exit 1'
+        currentBuild.result = 'SUCCESS'
+    } catch (any) {
+        currentBuild.result = 'FAILURE'
+        throw any //rethrow exception to prevent the build from proceeding
+    } finally {
+        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'priyasapo@gmail.com', sendToIndividuals: true])
+    }
+}
+
+stage 'Test'
+node {
+    catchError {
+        sh 'exit 1'
+    } 
+    step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'priyasapo@gmail.com', sendToIndividuals: true])
 }
